@@ -31,12 +31,10 @@ class Ballot extends Contract {
       this.voterId = voterId;
       this.ballotId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       this.type = 'ballot';
-      if (this.__isContract) {
+      if (this.__isContract)
         delete this.__isContract;
-      }
-      if (this.name) {
+      if (this.name) 
         delete this.name;
-      }
       return this;
 
     } else {
@@ -61,9 +59,8 @@ class Ballot extends Contract {
       if (voter.ballotCreated) {
         console.log('ballot has already been created for this voter');
         return false;
-      } else {
+      } else
         return true;
-      }
     } else {
       console.log('This ID is not registered to vote.');
       return false;

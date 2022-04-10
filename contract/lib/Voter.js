@@ -37,9 +37,7 @@ class Voter extends Contract {
       throw new Error('the registrarId is not valid.');
   }
 
-  /**
-   *
-   * validateVoter
+  /** validateVoter
    *
    * check for valid ID card - stateID or drivers License.
    *  
@@ -54,9 +52,7 @@ class Voter extends Contract {
       return false;
   }
 
-  /**
-   *
-   * validateRegistrar
+  /** validateRegistrar
    *
    * check for valid registrarId, should be cross checked with government
    *  

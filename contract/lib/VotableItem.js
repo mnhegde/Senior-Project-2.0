@@ -22,7 +22,6 @@ class VotableItem extends Contract {
    * @param voterId - the unique Id which corresponds to a registered voter
    * @returns - registrar object
    */
-
   constructor(ctx, votableId, votableTitle, description, isProp) {
 
     super();
@@ -33,14 +32,13 @@ class VotableItem extends Contract {
     this.isProp = isProp;
     this.choices = this.generateChoices(ctx, votableTitle);
     this.type = 'votableItem';
-    if (this.__isContract) {
+    if (this.__isContract)
       delete this.__isContract;
-    }
     return this;
 
   }
 
-  /** generateChoices
+   /** generateChoices
    *
    * Check for valid election with gov't
    *  
@@ -130,5 +128,4 @@ class VotableItem extends Contract {
     return;
   }
 }
-
 module.exports = VotableItem;
