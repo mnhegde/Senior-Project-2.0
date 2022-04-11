@@ -21,7 +21,7 @@ class Ballot {
       this.ballotCast = false;
       this.ballotId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       this.type = 'ballot';
-      if (this.__isContract) 
+      if (this.__isContract)
         delete this.__isContract;
       if (this.name)
         delete this.name;
@@ -41,7 +41,6 @@ class Ballot {
    */
   async validateBallot(ctx, voterId) {
     const buffer = await ctx.stub.getState(voterId);
-    
     if (!!buffer && buffer.length > 0) {
       let voter = JSON.parse(buffer.toString());
       if (voter.ballotCreated) {

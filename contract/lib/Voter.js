@@ -1,7 +1,5 @@
 'use strict';
 
-// const { Contract } = require('fabric-contract-api');
-
 class Voter {
   /** Voter
    *
@@ -25,10 +23,9 @@ class Voter {
       if (this.name) 
         delete this.name;
       return this;
-
     } else if (!this.validateVoter(voterId))
       throw new Error('the voterId is not valid.');
-    else
+    else 
       throw new Error('the registrarId is not valid.');
   }
 
@@ -41,7 +38,7 @@ class Voter {
    */
   async validateVoter(voterId) {
     //VoterId error checking here, i.e. check if valid drivers License, or state ID
-    if (voterId)
+    if (voterId) 
       return true;
     else 
       return false;
@@ -55,7 +52,8 @@ class Voter {
    * @returns - yes if valid Voter, no if invalid
    */
   async validateRegistrar(registrarId) {
-    if (registrarId)
+    //registrarId error checking here, i.e. check if valid drivers License, or state ID
+    if (registrarId) 
       return true;
     else 
       return false;
