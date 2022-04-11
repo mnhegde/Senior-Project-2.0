@@ -5,3 +5,8 @@ Second, more complex, version of blcokchain-based voting app. Will be using IBM 
 Tools:
 - IBM Hyperledger Fabric (for blockchain network)
 - Vue (for frontend)
+
+Demo:
+Video example of working application
+
+Instructions to run locally:

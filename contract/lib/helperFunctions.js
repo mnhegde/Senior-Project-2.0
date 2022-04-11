@@ -1,7 +1,3 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- */
-
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
@@ -11,7 +7,7 @@ const secondChoice = 1;
 
 let util = require('util');
 
-class HelperFunctions extends Contract {
+class HelperFunctions extends Contract{
 
   /** updateMyAsset
    *
@@ -19,7 +15,7 @@ class HelperFunctions extends Contract {
    *  
    * @param myAssetId - the key of the asset to update
    * @param newValue - the value to store at a certain key 
-   * @returns - nothing - but updates the world state
+   * @returns - void; updates the world state
    */
   async updateMyAsset(ctx, myAssetId, newValue) {
 
@@ -31,7 +27,7 @@ class HelperFunctions extends Contract {
   }
 
 
-  /** deleteMyAsset
+   /** deleteMyAsset
    *
    * Deletes a key-value pair from the world state
    *  
@@ -39,13 +35,10 @@ class HelperFunctions extends Contract {
    * @returns - void; deletes the value in the world state
    */
   async deleteMyAsset(ctx, myAssetId) {
-
     const exists = await this.myAssetExists(ctx, myAssetId);
     if (!exists)
       throw new Error(`The my asset ${myAssetId} does not exist`);
-
     await ctx.stub.deleteState(myAssetId);
-
   }
 
   /** readMyAsset
@@ -56,10 +49,9 @@ class HelperFunctions extends Contract {
    * @returns - void; reads the value in the world state
    */
   async readMyAsset(ctx, myAssetId) {
-
     const exists = await this.myAssetExists(ctx, myAssetId);
 
-    if (!exists)
+    if (!exists) 
       throw new Error(`The my asset ${myAssetId} does not exist`);
 
     const buffer = await ctx.stub.getState(myAssetId);
@@ -67,7 +59,7 @@ class HelperFunctions extends Contract {
     return asset;
   }
 
-  /** createMyAsset
+   /** createMyAsset
    *
    * Creates a key-value pair from the world state (checks if it already exists) 
    *  
@@ -75,15 +67,12 @@ class HelperFunctions extends Contract {
    * @returns - void; creates the value in the world state
    */
   async createMyAsset(ctx, myAssetId, value) {
-
     const exists = await this.myAssetExists(ctx, myAssetId);
 
     if (exists) {
       console.log(`The my asset ${myAssetId} already exists, will update instead`);
       throw new Error(`The my asset ${myAssetId} already exists`);
-
     } else {
-
       const asset = { value };
       const buffer = Buffer.from(JSON.stringify(asset));
 
@@ -110,7 +99,6 @@ class HelperFunctions extends Contract {
    * @returns an array which has the winning briefs of the ballot. 
    */
   async sort(dictToSort) {
-
     let winningChoices = [];
 
     for (let i = 0; i < dictToSort.length; i++) {
@@ -139,7 +127,6 @@ class HelperFunctions extends Contract {
     let voterExists = await this.myAssetExists(ctx, voterId);
 
     if (electionExists && voterExists) {
-
       console.log('inside exists...');
 
       //make sure we have an election
@@ -172,7 +159,6 @@ class HelperFunctions extends Contract {
 
 
       if (parsedCurrentTime >= electionStart && parsedCurrentTime < electionEnd) {
-
         for (let i = 0; i < voter.ballot.votableItems.length; i++) {
           console.log('util.inspect');
           console.log(util.inspect(voter.ballot.votableItems[i].choices[firstChoice]));
@@ -186,12 +172,12 @@ class HelperFunctions extends Contract {
         }
         return results;
 
-      } else
+      } else 
         throw new Error('the election is not open now!');
 
-    } else
+    } else 
       throw new Error('the election or the voter does not exist!');
-  }
+      }
 }
 
 module.exports = HelperFunctions;

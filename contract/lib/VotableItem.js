@@ -1,16 +1,16 @@
-/* eslint-disable indent */
 'use strict';
 
-const { Contract } = require('fabric-contract-api');
+// const { Contract } = require('fabric-contract-api');
 const path = require('path');
 const fs = require('fs');
 
 // connect to the election data file
+console.log('about to hit errro');
 const ballotDataPath = path.join(process.cwd(), './lib/data/ballotData.json');
 const ballotDataJson = fs.readFileSync(ballotDataPath, 'utf8');
 const ballotData = JSON.parse(ballotDataJson);
 
-class VotableItem extends Contract {
+class VotableItem {
 
   /** Choice
    *
@@ -23,8 +23,6 @@ class VotableItem extends Contract {
    * @returns - registrar object
    */
   constructor(ctx, votableId, votableTitle, description, isProp) {
-
-    super();
 
     this.votableId = votableId;
     this.votableTitle = votableTitle;

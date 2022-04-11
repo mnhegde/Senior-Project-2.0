@@ -1,15 +1,6 @@
 'use strict';
 
-const { Contract } = require('fabric-contract-api');
-// const path = require('path');
-// const fs = require('fs');
-
-// // connect to the election data file
-// const electionDataPath = path.join(process.cwd(), './electionData.json');
-// const electionDataJson = fs.readFileSync(electionDataPath, 'utf8');
-// const electionData = JSON.parse(electionDataJson);
-
-class Ballot extends Contract {
+class Ballot {
 
   /** Ballot
    *
@@ -21,8 +12,6 @@ class Ballot extends Contract {
    * @returns - registrar object
    */
   constructor(ctx, items, election, voterId) {
-
-    super();
 
     if (this.validateBallot(ctx, voterId)) {
 
@@ -67,4 +56,5 @@ class Ballot extends Contract {
     }
   }
 }
+
 module.exports = Ballot;

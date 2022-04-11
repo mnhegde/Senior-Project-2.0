@@ -1,8 +1,8 @@
 'use strict';
 
-const { Contract } = require('fabric-contract-api');
+// const { Contract } = require('fabric-contract-api');
 
-class Voter extends Contract {
+class Voter {
   
   /** Voter
    *
@@ -14,8 +14,6 @@ class Voter extends Contract {
    * @returns - registrar object
    */
   constructor(voterId, registrarId, firstName, lastName) {
-
-    super();
 
     if (this.validateVoter(voterId) && this.validateRegistrar(registrarId)) {
 
@@ -35,7 +33,7 @@ class Voter extends Contract {
       throw new Error('the voterId is not valid.');
     else
       throw new Error('the registrarId is not valid.');
-  }
+}
 
   /** validateVoter
    *
@@ -44,7 +42,7 @@ class Voter extends Contract {
    * @param voterId - an array of choices 
    * @returns - yes if valid Voter, no if invalid
    */
-  async validateVoter(voterId) {
+   async validateVoter(voterId) {
     //VoterId error checking here, i.e. check if valid drivers License, or state ID
     if (voterId)
       return true;
@@ -69,5 +67,4 @@ class Voter extends Contract {
   }
 
 }
-
 module.exports = Voter;
