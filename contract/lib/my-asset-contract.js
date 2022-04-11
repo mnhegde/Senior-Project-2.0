@@ -10,8 +10,8 @@ const electionDataPath = path.join(process.cwd(), './lib/data/electionData.json'
 const electionDataJson = fs.readFileSync(electionDataPath, 'utf8');
 const electionData = JSON.parse(electionDataJson);
 
-// connect to the ballot data file
-const ballotDataPath = path.join(process.cwd(), './lib/data/ballotData.json');
+// connect to the pres election file
+const ballotDataPath = path.join(process.cwd(), './lib/data/presElection.json');
 const ballotDataJson = fs.readFileSync(ballotDataPath, 'utf8');
 const ballotData = JSON.parse(ballotDataJson);
 
@@ -42,6 +42,7 @@ class MyAssetContract extends Contract {
    * @returns the voters which are registered and ready to vote in the election
    */
   async init(ctx) {
+
     console.log('instantiate was called!');
 
     let voters = [];
@@ -72,6 +73,8 @@ class MyAssetContract extends Contract {
     console.log(util.inspect(currElections));
 
     if (currElections.length === 0) {    
+
+
       //create the election
       //election day is always on a tuesday, and lasts a full day
       let electionStartDate = await new Date(2022, 11, 8);
@@ -91,20 +94,22 @@ class MyAssetContract extends Contract {
     }
 
     //create votableItems for the ballots
-    let presVotable = await new VotableItem(ctx, 'VI1', ballotData.presidentialRaceTitle,
-      ballotData.presidentialRaceDescription, false);
-    let governorVotable = await new VotableItem(ctx, 'VI2', ballotData.governorRaceTitle,
-      ballotData.governorRaceDescription, false);
-    let mayorVotable = await new VotableItem(ctx, 'VI3', ballotData.mayorRaceTitle,
-      ballotData.mayorRaceDescription, false);
-    let propVotable = await new VotableItem(ctx, 'VI4', ballotData.propositionTitle,
-      ballotData.propositionDescription, true);
+    let repVotable = await new VotableItem(ctx, 'Republican', ballotData.fedDemocratBrief);
+
+    let demVotable = await new VotableItem(ctx, 'Democrat', ballotData.republicanBrief);
+
+    let indVotable = await new VotableItem(ctx, 'Green', ballotData.greenBrief);
+
+    let grnVotable = await new VotableItem(ctx, 'Independent', ballotData.independentBrief);
+
+    let libVotable = await new VotableItem(ctx, 'Libertarian', ballotData.libertarianBrief);
 
     //populate choices array so that the ballots can have all of these choices 
-    votableItems.push(presVotable);
-    votableItems.push(governorVotable);
-    votableItems.push(mayorVotable);
-    votableItems.push(propVotable);
+    votableItems.push(repVotable);
+    votableItems.push(demVotable);
+    votableItems.push(indVotable);
+    votableItems.push(grnVotable);
+    votableItems.push(libVotable);
 
     //save choices in world state
     for (let i = 0; i < votableItems.length; i++) {
@@ -113,7 +118,9 @@ class MyAssetContract extends Contract {
 
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
+
       if (!voters[i].ballot) {
+
         console.log('inside !voters[i].ballot');
 
         //give each registered voter a ballot
@@ -127,11 +134,13 @@ class MyAssetContract extends Contract {
         console.log('these voters already have ballots');
         break;
       }
+
     }
+
     return voters;
 
   }
-
+  
   async updateMyAsset(ctx, myAssetId, newValue) {
     const buffer = Buffer.from(JSON.stringify(newValue));
 

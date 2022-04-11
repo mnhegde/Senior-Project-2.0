@@ -1,21 +1,44 @@
 import Api from '@/services/api'
 
 export default {
-  changeCarOwner(key, newOwner) {
-    return Api().post('changeCarOwner', {       
-      key: key,
-      newOwner: newOwner
+  castBallot(electionId, voterId, picked) {
+    return Api().post('castBallot', {       
+      electionId: electionId,
+      voterId: voterId,
+      picked: picked
     })
   },
-  createCar(make, model, color, owner) {
-    return Api().post('createCar', {       
-      make: make,
-      model: model,
-      color: color,
-      owner: owner
-    })
+  queryAll() {
+    return Api().get('queryAll')
   },
-  queryAllCars() {
-    return Api().get('queryAllCars')
+  queryByObjectType() {
+    return Api().get('queryByObjectType')
+  },
+  queryWithQueryString(selected) {
+    return Api().post('queryWithQueryString', {
+      selected: selected
+    }) 
+  },
+  registerVoter(voterId, registrarId, firstName, lastName) {
+    return Api().post('registerVoter', {
+      voterId: voterId,
+      registrarId: registrarId,
+      firstName: firstName,
+      lastName: lastName,
+      
+    }) 
+  },
+  validateVoter(voterId) {
+    return Api().post('validateVoter', {
+      voterId: voterId
+    }) 
+  },
+  queryByKey(key) {
+    return Api().post('queryByKey', {
+      key: key
+    }) 
+  },
+  getCurrentStanding() {
+    return Api().get('getCurrentStanding')
   }
 }

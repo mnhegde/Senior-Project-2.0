@@ -2,9 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import Home from '@/components/Home'
-import CreateCar from '@/components/CreateCar'
-import ChangeCarOwner from '@/components/ChangeCarOwner'
-import QueryAllCars from '@/components/QueryAllCars'
+import CastBallot from '@/components/CastBallot'
+import QueryAll from '@/components/QueryAll'
+import QueryWithQueryString from '@/components/QueryWithQueryString'
+import QueryByKey from '@/components/QueryByKey'
+import GetCurrentStanding from '@/components/GetCurrentStanding'
 
 Vue.use(Router)
 
@@ -16,19 +18,29 @@ export default new Router({
       component: Home
     },
     {
-      path: '/createCar',
-      name: 'CreateCar',
-      component: CreateCar
+      path: '/castBallot',
+      name: 'CastBallot',
+      component: CastBallot
     },
     {
-      path: '/changeCarOwner',
-      name: 'ChangeCarOwner',
-      component: ChangeCarOwner
+      path: '/queryAll',
+      name: 'QueryAll',
+      component: QueryAll
     },
     {
-      path: '/queryAllCars',
-      name: 'QueryAllCars',
-      component: QueryAllCars
+      path: '/queryWithQueryString',
+      name: 'QueryWithQueryString',
+      component: QueryWithQueryString
+    },
+    {
+      path: '/queryByKey',
+      name: 'QueryByKey',
+      component: QueryByKey
+    },
+    {
+      path: '/getCurrentStanding',
+      name: 'GetCurrentStanding',
+      component: GetCurrentStanding
     }
   ]
 })

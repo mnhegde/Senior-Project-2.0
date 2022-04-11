@@ -1,13 +1,11 @@
 'use strict';
 
-const { Contract } = require('fabric-contract-api');
-
 const firstChoice = 0;
 const secondChoice = 1;
 
 let util = require('util');
 
-class HelperFunctions extends Contract{
+class HelperFunctions {
 
   /** updateMyAsset
    *
@@ -17,7 +15,7 @@ class HelperFunctions extends Contract{
    * @param newValue - the value to store at a certain key 
    * @returns - void; updates the world state
    */
-  async updateMyAsset(ctx, myAssetId, newValue) {
+   async updateMyAsset(ctx, myAssetId, newValue) {
 
     const buffer = Buffer.from(JSON.stringify(newValue));
 
@@ -144,7 +142,7 @@ class HelperFunctions extends Contract{
       console.log(`voter ${voter}, and voters ballot ${voter.ballot}`);
 
       //check the date of the election, to make sure the election is still open
-      let currentTime = await new Date(2020, 11, 3);
+      let currentTime = await new Date(2022, 11, 8);
 
       console.log('election: ');
       console.log(election);
@@ -181,4 +179,3 @@ class HelperFunctions extends Contract{
 }
 
 module.exports = HelperFunctions;
-

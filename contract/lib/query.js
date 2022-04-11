@@ -1,18 +1,12 @@
 'use strict';
-
-//import Hyperledger Fabric 1.4 SDK
-const { Contract } = require('fabric-contract-api');
-
-// let util = require('util');
-
-class Query extends Contract{
+class Query {
 
   /** Evaluate a queryString
    *
    * @param {Context} ctx the transaction context
    * @returns - all key-value pairs in the world state
   */
-  async queryAll(ctx) {
+   async queryAll(ctx) {
 
     let queryString = {
       selector: {}
