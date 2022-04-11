@@ -18,14 +18,14 @@ class Ballot {
       this.votableItems = items;
       this.election = election;
       this.voterId = voterId;
+      this.ballotCast = false;
       this.ballotId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       this.type = 'ballot';
-      if (this.__isContract)
+      if (this.__isContract) 
         delete this.__isContract;
-      if (this.name) 
+      if (this.name)
         delete this.name;
       return this;
-
     } else {
       console.log('a ballot has already been created for this voter');
       throw new Error ('a ballot has already been created for this voter');
@@ -40,7 +40,6 @@ class Ballot {
    * @returns - yes if valid Voter, no if invalid
    */
   async validateBallot(ctx, voterId) {
-
     const buffer = await ctx.stub.getState(voterId);
     
     if (!!buffer && buffer.length > 0) {
@@ -48,7 +47,7 @@ class Ballot {
       if (voter.ballotCreated) {
         console.log('ballot has already been created for this voter');
         return false;
-      } else
+      } else 
         return true;
     } else {
       console.log('This ID is not registered to vote.');

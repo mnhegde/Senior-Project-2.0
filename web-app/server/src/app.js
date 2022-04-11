@@ -13,10 +13,13 @@ app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
 
+//use this identity to query
+const appAdmin = 'app-admin';
+
 //get all assets in world state
 app.get('/queryAll', async (req, res) => {
 
-  let networkObj = await network.connectToNetwork('voterApp-admin');
+  let networkObj = await network.connectToNetwork(appAdmin);
   let response = await network.invoke(networkObj, true, 'queryAll', '');
   let parsedResponse = await JSON.parse(response);
   res.send(parsedResponse);
@@ -25,7 +28,7 @@ app.get('/queryAll', async (req, res) => {
 
 app.get('/getCurrentStanding', async (req, res) => {
 
-  let networkObj = await network.connectToNetwork('voterApp-admin');
+  let networkObj = await network.connectToNetwork(appAdmin);
   let response = await network.invoke(networkObj, true, 'queryByObjectType', 'votableItem');
   let parsedResponse = await JSON.parse(response);
   console.log(parsedResponse);
@@ -44,17 +47,20 @@ app.post('/castBallot', async (req, res) => {
   let args = [req.body];
 
   let response = await network.invoke(networkObj, false, 'castVote', args);
-  console.log('response: ');
-  console.log(response);
-  // let parsedResponse = await JSON.parse(response);
-  res.send(response);
-
+  if (response.error) {
+    res.send(response.error);
+  } else {
+    console.log('response: ');
+    console.log(response);
+    // let parsedResponse = await JSON.parse(response);
+    res.send(response);
+  }
 });
 
 //query for certain objects within the world state
 app.post('/queryWithQueryString', async (req, res) => {
 
-  let networkObj = await network.connectToNetwork('voterApp-admin');
+  let networkObj = await network.connectToNetwork(appAdmin);
   let response = await network.invoke(networkObj, true, 'queryByObjectType', req.body.selected);
   let parsedResponse = await JSON.parse(response);
   res.send(parsedResponse);
@@ -68,7 +74,7 @@ app.post('/registerVoter', async (req, res) => {
   let voterId = req.body.voterId;
 
   //first create the identity for the voter and add to wallet
-  let response = await network.registerVoter(req.body.voterId, req.body.registrarId, req.body.firstName, req.body.lastName);
+  let response = await network.registerVoter(voterId, req.body.registrarId, req.body.firstName, req.body.lastName);
   console.log('response from registerVoter: ');
   console.log(response);
   if (response.error) {
@@ -76,7 +82,7 @@ app.post('/registerVoter', async (req, res) => {
   } else {
     console.log('req.body.voterId');
     console.log(req.body.voterId);
-    let networkObj = await network.connectToNetwork(req.body.voterId);
+    let networkObj = await network.connectToNetwork(voterId);
     console.log('networkobj: ');
     console.log(networkObj);
 
@@ -142,7 +148,7 @@ app.post('/queryByKey', async (req, res) => {
   console.log('req.body: ');
   console.log(req.body);
 
-  let networkObj = await network.connectToNetwork('voterApp-admin');
+  let networkObj = await network.connectToNetwork(appAdmin);
   console.log('after network OBj');
   let response = await network.invoke(networkObj, true, 'readMyAsset', req.body.key);
   response = JSON.parse(response);

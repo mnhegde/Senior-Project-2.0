@@ -1,12 +1,18 @@
 'use strict';
-class Query {
+
+//import Hyperledger Fabric 1.4 SDK
+const { Contract } = require('fabric-contract-api');
+
+// let util = require('util');
+
+class Query extends Contract {
 
   /** Evaluate a queryString
    *
    * @param {Context} ctx the transaction context
    * @returns - all key-value pairs in the world state
   */
-   async queryAll(ctx) {
+  async queryAll(ctx) {
 
     let queryString = {
       selector: {}
@@ -14,7 +20,6 @@ class Query {
 
     let queryResults = await this.queryWithQueryString(ctx, JSON.stringify(queryString));
     return queryResults;
-
   }
 
   /** Evaluate a queryString
@@ -27,6 +32,7 @@ class Query {
     console.log(JSON.stringify(queryString));
 
     let resultsIterator = await ctx.stub.getQueryResult(queryString);
+
     let allResults = [];
 
     // eslint-disable-next-line no-constant-condition
@@ -35,14 +41,17 @@ class Query {
 
       if (res.value && res.value.value.toString()) {
         let jsonRes = {};
+
         console.log(res.value.value.toString('utf8'));
         jsonRes.Key = res.value.key;
+
         try {
           jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
         } catch (err) {
           console.log(err);
           jsonRes.Record = res.value.value.toString('utf8');
         }
+
         allResults.push(jsonRes);
       }
       if (res.done) {

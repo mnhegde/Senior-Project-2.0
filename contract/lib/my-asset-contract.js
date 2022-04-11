@@ -21,13 +21,8 @@ let Election = require('./Election.js');
 let Voter = require('./Voter.js');
 let VotableItem = require('./VotableItem.js');
 
-let HelperFunctions = require('./HelperFunctions.js');
-let helperFunctions = new HelperFunctions();
 let Query = require('./query.js');
 let query = new Query();
-
-let firstChoice = 0;
-let secondChoice = 1;
 
 const util = require('util');
 
@@ -53,55 +48,46 @@ class MyAssetContract extends Contract {
     //create voters
     let voter1 = await new Voter('V1', '234', 'Horea', 'Porutiu');
     let voter2 = await new Voter('V2', '345', 'Duncan', 'Conley');
-    let voter3 = await new Voter('V3', '456', 'Mark', 'Ashla');
-    let voter4 = await new Voter('V4', '567', 'Danny', 'Powell');
+
     //update voters array
     voters.push(voter1);
     voters.push(voter2);
-    voters.push(voter3);
-    voters.push(voter4);
 
     //add the voters to the world state, the election class checks for registered voters 
-    await helperFunctions.updateMyAsset(ctx, voter1.voterId, voter1);
-    await helperFunctions.updateMyAsset(ctx, voter2.voterId, voter2);
-    await helperFunctions.updateMyAsset(ctx, voter3.voterId, voter3);
-    await helperFunctions.updateMyAsset(ctx, voter4.voterId, voter4);
+    await ctx.stub.putState(voter1.voterId, Buffer.from(JSON.stringify(voter1)));
+    await ctx.stub.putState(voter2.voterId, Buffer.from(JSON.stringify(voter2)));
+
 
     //query for election first before creating one.
     let currElections = JSON.parse(await query.queryByObjectType(ctx, 'election'));
-    console.log(util.inspect('currElections: '));
-    console.log(util.inspect(currElections));
 
-    if (currElections.length === 0) {    
+    if (currElections.length === 0) {
 
-
-      //create the election
-      //election day is always on a tuesday, and lasts a full day
+      //Nov 3 is election day
       let electionStartDate = await new Date(2022, 11, 8);
       let electionEndDate = await new Date(2022, 11, 9);
+
+      //create the election
       election = await new Election(electionData.electionName, electionData.electionCountry,
         electionData.electionYear, electionStartDate, electionEndDate);
-      console.log('util inspect voters: ');
-      console.log(util.inspect(voters));
-  
+
       //update elections array
       elections.push(election);
       console.log(`***************************************************
         election.electionId: ${election.electionId} and election: ${election}`);
-      await helperFunctions.updateMyAsset(ctx, election.electionId, election);
+
+      // await helperFunctions.updateMyAsset(ctx, election.electionId, election);
+      await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
+
     } else {
       election = currElections[0];
     }
 
     //create votableItems for the ballots
     let repVotable = await new VotableItem(ctx, 'Republican', ballotData.fedDemocratBrief);
-
     let demVotable = await new VotableItem(ctx, 'Democrat', ballotData.republicanBrief);
-
     let indVotable = await new VotableItem(ctx, 'Green', ballotData.greenBrief);
-
     let grnVotable = await new VotableItem(ctx, 'Independent', ballotData.independentBrief);
-
     let libVotable = await new VotableItem(ctx, 'Libertarian', ballotData.libertarianBrief);
 
     //populate choices array so that the ballots can have all of these choices 
@@ -113,23 +99,18 @@ class MyAssetContract extends Contract {
 
     //save choices in world state
     for (let i = 0; i < votableItems.length; i++) {
-      await helperFunctions.updateMyAsset(ctx, votableItems[i].votableId, votableItems[i]);
+      // await helperFunctions.updateMyAsset(ctx, votableItems[i].votableId, votableItems[i]);
+      await ctx.stub.putState(votableItems[i].votableId, Buffer.from(JSON.stringify(votableItems[i])));
+
     }
 
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
 
       if (!voters[i].ballot) {
-
-        console.log('inside !voters[i].ballot');
-
         //give each registered voter a ballot
-        voters[i].ballot = await new Ballot(ctx, votableItems, election, voters[i].voterId);
-        voters[i].ballotCreated = true;
+        await this.generateBallot(ctx, votableItems, election, voters[i]);
 
-        //update state with ballots
-        await helperFunctions.updateMyAsset(ctx, voters[i].ballot.ballotId, voters[i].ballot);
-        await helperFunctions.updateMyAsset(ctx, voters[i].voterId, voters[i]);
       } else {
         console.log('these voters already have ballots');
         break;
@@ -140,21 +121,70 @@ class MyAssetContract extends Contract {
     return voters;
 
   }
-  
-  async updateMyAsset(ctx, myAssetId, newValue) {
-    const buffer = Buffer.from(JSON.stringify(newValue));
 
-    console.log(`putState in updateMyAsset with key ${myAssetId} 
-      and value ${buffer}`);
-    await ctx.stub.putState(myAssetId, buffer);
+  /** generateBallot
+   *
+   * Creates a voter in the world state, based on the key given.
+   *  
+   * @param votableItems - The different political parties and candidates you can vote for, which are on the ballot.
+   * @param election - the election we are generating a ballot for. All ballots are the same for an election.
+   * @param voter - the voter object
+   * @returns - nothing - but updates the world state with a ballot for a particular voter object
+   */
+  async generateBallot(ctx, votableItems, election, voter) {
+
+    //generate ballot
+    let ballot = await new Ballot(ctx, votableItems, election, voter.voterId);
+    voter.ballot = ballot.ballotId;
+    voter.ballotCreated = true;
+
+    // //update state with ballot object we just created
+    await ctx.stub.putState(ballot.ballotId, Buffer.from(JSON.stringify(ballot)));
+    await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
+
   }
+
+
+  /** createVoter
+   *
+   * Creates a voter in the world state, based on the key given.
+   *  
+   * @param args.voterId - the Id the voter, used as the key to store the voter object
+   * @param args.registrarId - the registrar the voter is registered for
+   * @param args.firstName - first name of voter
+   * @param args.lastName - last name of voter
+   * @returns - nothing - but updates the world state with a voter
+   */
+  async createVoter(ctx, args) {
+    args = JSON.parse(args);
+    let newVoter = await new Voter(args.voterId, args.registrarId, args.firstName, args.lastName);
+    await ctx.stub.putState(newVoter.voterId, Buffer.from(JSON.stringify(newVoter)));
+
+    let currElections = JSON.parse(await query.queryByObjectType(ctx, 'election'));
+
+    if (currElections.length === 0) {
+      let response = {};
+      response.error = 'no elections. Run the init() function first.';
+      return response;
+    }
+
+    let currElection = currElections[0];
+    let votableItems = JSON.parse(await query.queryByObjectType(ctx, 'votableItem'));
+    
+    await this.generateBallot(ctx, votableItems, currElection, newVoter);
+
+    let response = `voter with voterId ${newVoter.voterId} is updated in the world state`;
+    return response;
+  }
+
+
 
   /** deleteMyAsset
    *
    * Deletes a key-value pair from the world state, based on the key given.
    *  
    * @param myAssetId - the key of the asset to delete
-   * @returns - void; but deletes the value in the world state
+   * @returns - nothing - but deletes the value in the world state
    */
   async deleteMyAsset(ctx, myAssetId) {
 
@@ -172,14 +202,17 @@ class MyAssetContract extends Contract {
    * Reads a key-value pair from the world state, based on the key given.
    *  
    * @param myAssetId - the key of the asset to read
-   * @returns - void; reads the value in the world state
+   * @returns - nothing - but reads the value in the world state
    */
   async readMyAsset(ctx, myAssetId) {
 
     const exists = await this.myAssetExists(ctx, myAssetId);
 
     if (!exists) {
-      throw new Error(`The my asset ${myAssetId} does not exist`);
+      // throw new Error(`The my asset ${myAssetId} does not exist`);
+      let response = {};
+      response.error = `The my asset ${myAssetId} does not exist`;
+      return response;
     }
 
     const buffer = await ctx.stub.getState(myAssetId);
@@ -190,10 +223,9 @@ class MyAssetContract extends Contract {
   /** createMyAsset
    *
    * Creates a key-value pair from the world state, based on the key given. 
-   * Checks if the asset exists first, and if so, throws an error. 
    *  
    * @param myAssetId - the key of the asset to read
-   * @returns - void; creates the value in the world state
+   * @returns - nothing - but creates the value in the world state
    */
   async createMyAsset(ctx, myAssetId, value) {
     const exists = await this.myAssetExists(ctx, myAssetId);
@@ -217,34 +249,8 @@ class MyAssetContract extends Contract {
    * @returns boolean indicating if the asset exists or not. 
    */
   async myAssetExists(ctx, myAssetId) {
-
     const buffer = await ctx.stub.getState(myAssetId);
     return (!!buffer && buffer.length > 0);
-
-  }
-
-  /** sort
-   *
-   * Checks to see if a key exists in the world state. 
-   * @param dictToSort - the dictionary of values to sort on the ballot
-   * @returns an array which has the winning briefs of the ballot. 
-   */
-  async sort(dictToSort) {
-
-    let winningChoices = [];
-
-    for (let i = 0; i < dictToSort.length; i++) {
-      console.log('inside for loopp');
-      if (dictToSort[i].choices[firstChoice].count > dictToSort[i].choices[secondChoice].count) {
-        console.log('in if');
-        winningChoices.push(dictToSort[i].choices[firstChoice].brief);
-      } else {
-        console.log('in else');
-        winningChoices.push(dictToSort[i].choices[secondChoice].brief);
-      }
-    }
-    return winningChoices;
-
   }
 
   /** sort
@@ -252,32 +258,41 @@ class MyAssetContract extends Contract {
    * Checks to see if a key exists in the world state. 
    * @param electionId - the electionId of the election we want to vote in
    * @param voterId - the voterId of the voter that wants to vote
+   * @param votableId - the Id of the candidate the voter has selected.
    * @returns an array which has the winning briefs of the ballot. 
    */
-  async castVote(ctx, electionId, voterId) {
-    //check to make sure the election exists
-    let electionExists = await this.myAssetExists(ctx, electionId);
-    let voterExists = await this.myAssetExists(ctx, voterId);
+  async castVote(ctx, args) {
+    console.log('castvote called, with args: ');
+    console.log(util.inspect(args));
+    args = JSON.parse(args);
+    console.log('args are now parsed: ');
+    console.log(args);
 
-    if (electionExists && voterExists) {
+    //get the political party the voter voted for, also the key
+    let votableId = args.picked;
+
+    //check to make sure the election exists
+    let electionExists = await this.myAssetExists(ctx, args.electionId);
+
+    console.log(electionExists);
+
+    if (electionExists) {
       console.log('inside exists...');
       //make sure we have an election
-      let electionAsBytes = await ctx.stub.getState(electionId);
+      let electionAsBytes = await ctx.stub.getState(args.electionId);
       let election = await JSON.parse(electionAsBytes);
-      let voterAsBytes = await ctx.stub.getState(voterId);
+      let voterAsBytes = await ctx.stub.getState(args.voterId);
       let voter = await JSON.parse(voterAsBytes);
 
-      if (!voter.ballot) 
-        throw new Error('this voter does not have a ballot! ');
-
-      if (voter.ballotCast) 
-        throw new Error('this voter has already cast this ballot!');
-      
-      console.log(`voter ${voter}, and voters ballot ${voter.ballot}`);
+      if (voter.ballotCast) {
+        let response = {};
+        response.error = 'this voter has already cast this ballot!';
+        return response;
+      }
 
       //check the date of the election, to make sure the election is still open
-      let currentTime = await new Date(2020, 11, 3);
-
+      let currentTime = await new Date(2022, 11, 8);
+      //usng7j5ck0q33vkzdjuevd
       console.log('election: ');
       console.log(election);
 
@@ -289,97 +304,50 @@ class MyAssetContract extends Contract {
       console.log(`parsedCurTime ${parsedCurrentTime}, electionStart: ${electionStart},
         and electionEnd: ${electionEnd}`);
 
-
       if (parsedCurrentTime >= electionStart && parsedCurrentTime < electionEnd) {
-        for (let i = 0; i < voter.ballot.votableItems.length; i++) {
-          console.log('util.inspect');
-          console.log(util.inspect(voter.ballot.votableItems[i].choices[firstChoice]));
-          await voter.ballot.votableItems[i].choices[firstChoice].count++;
+        let votableExists = await this.myAssetExists(ctx, votableId);
+        if (!votableExists) {
+          let response = {};
+          response.error = 'VotableId does not exist!';
+          return response;
         }
 
-        let results = await this.sort(voter.ballot.votableItems);
+        //get the votable object from the state - with the votableId the user picked
 
-        for (let i = 0; i < results; i++) {
-          console.log(`winning results ${results[i]}`);
-        }
-        return results;
+        let votableAsBytes = await ctx.stub.getState(votableId);
+        let votable = await JSON.parse(votableAsBytes);
 
-      } else 
-        throw new Error('the election is not open now!');
-      
-    } else 
-      throw new Error('the election or the voter does not exist!');
+        console.log('votable: ');
+        console.log(util.inspect(votable));
+
+        //increase the vote of the political party that was picked by the voter
+        await votable.count++;
+        console.log('about to util inspect the votable');
+        console.log(util.inspect(votable));
+
+        //update the state with the new vote count
+        let result = await ctx.stub.putState(votableId, Buffer.from(JSON.stringify(votable)));
+        console.log(result);
+        //make sure this voter cannot vote again! 
+        voter.ballotCast = true;
+        voter.picked = {};
+        voter.picked = args.picked;
+
+        console.log(util.inspect(voter));
+
+        let response = await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
+        console.log(response);
+        return voter;
+      } else {
+        let response = {};
+        response.error = 'the election is not open now!';
+        return response;
+      }
+    } else {
+      let response = {};
+      response.error = 'the election or the voter does not exist!';
+      return response;
     }
-
-
-  async queryAll(ctx) {
-
-    let queryString = {
-      selector: {}
-    };
-
-    let queryResults = await this.queryWithQueryString(ctx, JSON.stringify(queryString));
-    return queryResults;
-
-  }
-
-  /** Evaluate a queryString
-     *
-     * @param {Context} ctx the transaction context
-     * @param {String} queryString the query string to be evaluated
-    */
-  async queryWithQueryString(ctx, queryString) {
-    console.log('query String');
-    console.log(JSON.stringify(queryString));
-
-    let resultsIterator = await ctx.stub.getQueryResult(queryString);
-
-    let allResults = [];
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      let res = await resultsIterator.next();
-
-      if (res.value && res.value.value.toString()) {
-        let jsonRes = {};
-
-        console.log(res.value.value.toString('utf8'));
-
-        jsonRes.Key = res.value.key;
-
-        try {
-          jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
-        } catch (err) {
-          console.log(err);
-          jsonRes.Record = res.value.value.toString('utf8');
-        }
-
-        allResults.push(jsonRes);
-      }
-      if (res.done) {
-        console.log('end of data');
-        await resultsIterator.close();
-        console.info(allResults);
-        console.log(JSON.stringify(allResults));
-        return JSON.stringify(allResults);
-      }
-    }
-  }
-
-  /** Evaluate a queryString
-  *
-  * @param {Context} ctx the transaction context
-  * @param {String} queryString the query string to be evaluated
-  */
-  async queryByObjectType(ctx, objectType) {
-    let queryString = {
-      selector: {
-        type: objectType
-      }
-    };
-
-    let queryResults = await this.queryWithQueryString(ctx, JSON.stringify(queryString));
-    return queryResults;
   }
 }
 

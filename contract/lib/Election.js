@@ -10,11 +10,11 @@ class Election {
    * @returns - yes if valid Voter, no if invalid
    */
   async validateElection(electionId) {
-
     //registrarId error checking here, i.e. check if valid drivers License, or state ID
-    if (electionId)
+    if (electionId) 
       return true;
-    return false;
+    else
+      return false;
   }
 
   /** Election
@@ -30,8 +30,7 @@ class Election {
     console.log('************************************** Election Constructor' +
       '***********************************************************************');
 
-    //generate random string for Id
-    this.electionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15); 
+    this.electionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     if (this.validateElection(this.electionId)) {
 
@@ -46,12 +45,9 @@ class Election {
         delete this.__isContract;
       return this;
 
-    } else {
+    } else 
       throw new Error('not a valid election!');
-    }
-
   }
-
 }
 
 module.exports = Election;

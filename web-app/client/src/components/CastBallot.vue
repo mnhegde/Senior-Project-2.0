@@ -60,23 +60,30 @@ export default {
   },
   methods: {
     async castBallot() {
-      let electionId = "2sww593dc034wb2twdk91r";
+      await this.runSpinner();
+
+      const electionRes = await PostsService.queryWithQueryString('election');
+
+      let electionId = electionRes.data[0].Key;
+
       console.log("picked: ");
       console.log(this.picked);
       console.log("voterId: ");
       console.log(this.input.voterId);
       this.response = null;
-      await this.runSpinner();
 
+ 
 
       //error checking for making sure to vote for a valid party
       if (this.picked === null ) {
+        console.log('this.picked === null')
 
         let response = "You have to pick a party to vote for!";
         this.response = response;
         await this.hideSpinner();
       
       } else if (this.input.voterId === undefined) {
+        console.log('this.voterId === undefined')
 
         let response = "You have to enter your voterId to cast a vote!";
         this.response = response;
@@ -89,16 +96,29 @@ export default {
           this.input.voterId,
           this.picked
         );
-        let response = `Successfully recorded vote for ${this.picked} party 
-        for voter with voterId ${apiResponse.data.voterId}. Thanks for 
-        doing your part and voting!`;
 
-        this.response = response;
+        console.log('apiResponse: &&&&&&&&&&&&&&&&&&&&&&&');
+        console.log(apiResponse);
 
-        console.log("cast ballot");
-        console.log(this.input);
-        await this.hideSpinner();
+        if (apiResponse.data.error) {
+          this.response= apiResponse.data.error;
+          await this.hideSpinner();
+        } else if (apiResponse.data.message) {
+          this.response= `Could not find voter with voterId ${this.input.voterId}
+            in the state. Make sure you are entering a valid voterId`;
+          await this.hideSpinner();
+        } 
+        else {
+          let response = `Successfully recorded vote for ${this.picked} party 
+            for voter with voterId ${apiResponse.data.voterId}. Thanks for 
+            doing your part and voting!`;
 
+          this.response = response;
+
+          console.log("cast ballot");
+          console.log(this.input);
+          await this.hideSpinner();
+        }
       }
     },
     async runSpinner() {
