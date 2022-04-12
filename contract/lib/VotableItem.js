@@ -2,7 +2,7 @@
 
 class VotableItem {
 
-  /** VotableItem
+   /** VotableItem
    *
    * Constructor for a VotableItem object. These will eventually be placed on the 
    * ballot. 

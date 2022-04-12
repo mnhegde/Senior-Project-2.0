@@ -65,7 +65,9 @@ class MyAssetContract extends Contract {
 
       //update elections array
       elections.push(election);
+
       await ctx.stub.putState(election.electionId, Buffer.from(JSON.stringify(election)));
+
     } else 
       election = currElections[0];
 
@@ -84,17 +86,14 @@ class MyAssetContract extends Contract {
     votableItems.push(libVotable);
 
     for (let i = 0; i < votableItems.length; i++) {
-      //save votable choices in world state
       await ctx.stub.putState(votableItems[i].votableId, Buffer.from(JSON.stringify(votableItems[i])));
     }
 
     //generate ballots for all voters
     for (let i = 0; i < voters.length; i++) {
-      if (!voters[i].ballot) {
-        //give each registered voter a ballot
+      if (!voters[i].ballot) 
         await this.generateBallot(ctx, votableItems, election, voters[i]);
-
-      } else {
+      else {
         console.log('these voters already have ballots');
         break;
       }
@@ -120,7 +119,6 @@ class MyAssetContract extends Contract {
     voter.ballot = ballot.ballotId;
     voter.ballotCreated = true;
 
-    // //update state with ballot object we just created
     await ctx.stub.putState(ballot.ballotId, Buffer.from(JSON.stringify(ballot)));
     await ctx.stub.putState(voter.voterId, Buffer.from(JSON.stringify(voter)));
   }
@@ -147,6 +145,7 @@ class MyAssetContract extends Contract {
 
     //query state for elections
     let currElections = JSON.parse(await this.queryByObjectType(ctx, 'election'));
+
     if (currElections.length === 0) {
       let response = {};
       response.error = 'no elections. Run the init() function first.';
@@ -157,11 +156,11 @@ class MyAssetContract extends Contract {
     let currElection = currElections[0];
     let votableItems = JSON.parse(await this.queryByObjectType(ctx, 'votableItem'));
     
-    //generate ballot with the given votableItems
     await this.generateBallot(ctx, votableItems, currElection, newVoter);
     let response = `voter with voterId ${newVoter.voterId} is updated in the world state`;
     return response;
   }
+
 
 
   /** deleteMyAsset
@@ -187,9 +186,7 @@ class MyAssetContract extends Contract {
    */
   async readMyAsset(ctx, myAssetId) {
     const exists = await this.myAssetExists(ctx, myAssetId);
-
     if (!exists) {
-      // throw new Error(`The my asset ${myAssetId} does not exist`);
       let response = {};
       response.error = `The my asset ${myAssetId} does not exist`;
       return response;
@@ -226,14 +223,12 @@ class MyAssetContract extends Contract {
   async castVote(ctx, args) {
     args = JSON.parse(args);
 
-    //get the political party the voter voted for, also the key
     let votableId = args.picked;
 
     //check to make sure the election exists
     let electionExists = await this.myAssetExists(ctx, args.electionId);
     if (electionExists) {
 
-      //make sure we have an election
       let electionAsBytes = await ctx.stub.getState(args.electionId);
       let election = await JSON.parse(electionAsBytes);
       let voterAsBytes = await ctx.stub.getState(args.voterId);
@@ -248,14 +243,12 @@ class MyAssetContract extends Contract {
       //check the date of the election, to make sure the election is still open
       let currentTime = await new Date(2022, 11, 8);
 
-      //parse date objects
       let parsedCurrentTime = await Date.parse(currentTime);
       let electionStart = await Date.parse(election.startDate);
       let electionEnd = await Date.parse(election.endDate);
 
       //only allow vote if the election has started 
       if (parsedCurrentTime >= electionStart && parsedCurrentTime < electionEnd) {
-
         let votableExists = await this.myAssetExists(ctx, votableId);
         if (!votableExists) {
           let response = {};
@@ -263,18 +256,16 @@ class MyAssetContract extends Contract {
           return response;
         }
 
-        //get the votable object from the state - with the votableId the user picked
         let votableAsBytes = await ctx.stub.getState(votableId);
         let votable = await JSON.parse(votableAsBytes);
 
-        //increase the vote of the political party that was picked by the voter
-        await votable.count++;
+        await votable.count++; //increase vote count
 
         //update the state with the new vote count
         let result = await ctx.stub.putState(votableId, Buffer.from(JSON.stringify(votable)));
         console.log(result);
 
-        //make sure this voter cannot vote again! 
+        //prevent double voting
         voter.ballotCast = true;
         voter.picked = {};
         voter.picked = args.picked;
@@ -303,6 +294,7 @@ class MyAssetContract extends Contract {
    * @returns - all key-value pairs in the world state
   */
   async queryAll(ctx) {
+
     let queryString = {
       selector: {}
     };
@@ -321,27 +313,20 @@ class MyAssetContract extends Contract {
     console.log(JSON.stringify(queryString));
 
     let resultsIterator = await ctx.stub.getQueryResult(queryString);
-
     let allResults = [];
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       let res = await resultsIterator.next();
-
       if (res.value && res.value.value.toString()) {
         let jsonRes = {};
-
         console.log(res.value.value.toString('utf8'));
-
         jsonRes.Key = res.value.key;
-
         try {
           jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
         } catch (err) {
           console.log(err);
           jsonRes.Record = res.value.value.toString('utf8');
         }
-
         allResults.push(jsonRes);
       }
       if (res.done) {

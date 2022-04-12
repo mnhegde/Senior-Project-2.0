@@ -37,7 +37,6 @@ class Voter {
    * @returns - yes if valid Voter, no if invalid
    */
   async validateVoter(voterId) {
-    //VoterId error checking here, i.e. check if valid drivers License, or state ID
     if (voterId) 
       return true;
     else 
@@ -52,7 +51,6 @@ class Voter {
    * @returns - yes if valid Voter, no if invalid
    */
   async validateRegistrar(registrarId) {
-    //registrarId error checking here, i.e. check if valid drivers License, or state ID
     if (registrarId) 
       return true;
     else 

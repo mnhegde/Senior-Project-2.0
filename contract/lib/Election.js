@@ -10,7 +10,6 @@ class Election {
    * @returns - yes if valid Voter, no if invalid
    */
   async validateElection(electionId) {
-    //registrarId error checking here, i.e. check if valid drivers License, or state ID
     if (electionId) 
       return true;
     else 

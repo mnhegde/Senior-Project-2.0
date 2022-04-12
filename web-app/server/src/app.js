@@ -113,12 +113,8 @@ app.post('/registerVoter', async (req, res) => {
       let parsedResponse = JSON.parse(invokeResponse);
       parsedResponse += '. Use voterId to login above.';
       res.send(parsedResponse);
-
     }
-
   }
-
-
 });
 
 //used as a way to login the voter to the app and make sure they haven't voted before 

@@ -16,11 +16,6 @@ let appAdminSecret = config.appAdminSecret;
 let orgMSPID = config.orgMSPID;
 let caName = config.caName;
 
-// const ccpPath = path.join(process.cwd(), './www/blockchain/ibpConnection.json');
-// const ccpPath = path.join(process.cwd(), './ibpConnection.json');
-// const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-// const ccp = JSON.parse(ccpJSON);
-
 async function main() {
   try {
 
