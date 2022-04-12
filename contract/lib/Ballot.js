@@ -12,18 +12,16 @@ class Ballot {
    * @returns - registrar object
    */
   constructor(ctx, items, election, voterId) {
-
     if (this.validateBallot(ctx, voterId)) {
-
       this.votableItems = items;
       this.election = election;
       this.voterId = voterId;
       this.ballotCast = false;
       this.ballotId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       this.type = 'ballot';
-      if (this.__isContract)
+      if (this.__isContract) 
         delete this.__isContract;
-      if (this.name)
+      if (this.name) 
         delete this.name;
       return this;
     } else {

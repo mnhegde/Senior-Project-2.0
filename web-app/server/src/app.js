@@ -33,6 +33,7 @@ app.get('/queryAll', async (req, res) => {
 });
 
 app.get('/getCurrentStanding', async (req, res) => {
+
   let networkObj = await network.connectToNetwork(appAdmin);
   let response = await network.invoke(networkObj, true, 'queryByObjectType', 'votableItem');
   let parsedResponse = await JSON.parse(response);
@@ -64,6 +65,7 @@ app.post('/castBallot', async (req, res) => {
 
 //query for certain objects within the world state
 app.post('/queryWithQueryString', async (req, res) => {
+
   let networkObj = await network.connectToNetwork(appAdmin);
   let response = await network.invoke(networkObj, true, 'queryByObjectType', req.body.selected);
   let parsedResponse = await JSON.parse(response);
@@ -113,7 +115,10 @@ app.post('/registerVoter', async (req, res) => {
       res.send(parsedResponse);
 
     }
+
   }
+
+
 });
 
 //used as a way to login the voter to the app and make sure they haven't voted before 
@@ -142,6 +147,7 @@ app.post('/validateVoter', async (req, res) => {
     // let response = `Voter with voterId ${parsedResponse.voterId} is ready to cast a ballot.`  
     res.send(parsedResponse);
   }
+
 });
 
 app.post('/queryByKey', async (req, res) => {
@@ -160,5 +166,6 @@ app.post('/queryByKey', async (req, res) => {
     res.send(response);
   }
 });
+
 
 app.listen(process.env.PORT || 8081);
