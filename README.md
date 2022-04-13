@@ -20,7 +20,7 @@ Instructions to run locally:
 6. Export Connection Profile from the Gateways panel
 ...
 
-**NOTE**: Will edit these steps, as have run into problems when trying to follow this
+**NOTE: Will edit these steps, as have run into problems when trying to follow this**
 
 
 Demo:
