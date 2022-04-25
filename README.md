@@ -31,8 +31,8 @@ Instructions to run locally:
   "gatewayDiscovery": { "enabled": true, "asLocalhost": true }
 }
 ```
-1. To run the app, the dependencies will need to be installed. For the frontend, run `cd web-app/server`, `npom install`, and `npm start` to start the server. Then run `cd ../client`, `npm install`, and `npm run serve`
-2. From here, go to http://localhost:8080/ and the app should appear in your browser to use
+9. To run the app, the dependencies will need to be installed. For the frontend, run `cd web-app/server`, `npom install`, and `npm start` to start the server. Then run `cd ../client`, `npm install`, and `npm run serve`
+10. From here, go to http://localhost:8080/ and the app should appear in your browser to use
 
 **NOTE: Will edit these steps, as have run into problems when trying to follow this**
 
